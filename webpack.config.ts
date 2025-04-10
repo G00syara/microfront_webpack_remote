@@ -4,6 +4,7 @@ import * as path from 'path';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { Configuration } from 'webpack';
+import 'webpack-dev-server';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,13 +23,13 @@ const config: Configuration = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/, // Обрабатываем .ts и .tsx файлы
-        use: 'ts-loader', // Используем ts-loader
+        test: /\.tsx?$/,
+        use: 'ts-loader', 
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/, // Добавляем обработку CSS файлов
-        use: ['style-loader', 'css-loader'], // style-loader добавляет CSS в DOM, css-loader позволяет импортировать CSS
+        test: /\.css$/, 
+        use: ['style-loader', 'css-loader'], 
       },
     ],
   },
@@ -37,7 +38,7 @@ const config: Configuration = {
       template: './public/index.html',
     }),
     new ModuleFederationPlugin({
-      name: 'app2', // Имя remote приложения
+      name: 'app2', 
       filename: 'remoteEntry.js',
       exposes: {
         './RemoteComponent': './src/RemoteComponent.tsx',
@@ -48,6 +49,9 @@ const config: Configuration = {
       },
     }),
   ],
+  experiments: {
+    topLevelAwait: true,
+  },
 };
 
 const devServerConfig = {
@@ -57,6 +61,12 @@ const devServerConfig = {
   port: 3001,
   hot: true,
   historyApiFallback: true,
+  watchFiles: ['../app2/dist/**/*'],
+  liveReload: true,
+  client: {
+    overlay: true,
+  },
+
 };
 
 export default { ...config, devServer: devServerConfig };
